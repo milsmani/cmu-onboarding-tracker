@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sahil's CMU BDes Fall 2026 Onboarding Tracker</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.5; padding: 16px; max-width: 1100px; margin: 0 auto; }
+header { background: linear-gradient(135deg, #c41230 0%, #8c0e25 100%); color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 16px; }
+header h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+header p { font-size: 13px; opacity: 0.92; }
+.status { background: #fff; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.prow { margin-bottom: 12px; } .prow:last-child { margin-bottom: 0; }
+.plabel { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; font-weight: 500; }
+.pcount { color: #6e6e73; font-weight: 400; }
+.pbar { background: #e8e8ed; height: 10px; border-radius: 5px; overflow: hidden; }
+.pfill { height: 100%; transition: width 0.4s ease; border-radius: 5px; }
+.pfill.rev { background: linear-gradient(90deg, #5ac8fa, #007aff); }
+.pfill.dn { background: linear-gradient(90deg, #34c759, #248a3d); }
+.urgent { background: #fff5f5; border: 1px solid #ffd0d0; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; }
+.urgent.empty { display: none; }
+.urgent h3 { font-size: 14px; font-weight: 600; color: #c41230; margin-bottom: 8px; }
+.ulist { font-size: 13px; }
+.uitem { padding: 4px 0; border-bottom: 1px solid #ffe5e5; }
+.uitem:last-child { border-bottom: none; }
+.uitem b { color: #c41230; margin-right: 6px; }
+.filters { background: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.flbl { font-size: 12px; font-weight: 600; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+.fbtn { padding: 6px 12px; border: 1px solid #d2d2d7; background: #fff; color: #1d1d1f; border-radius: 16px; font-size: 13px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+.fbtn:hover { background: #f5f5f7; }
+.fbtn.on { background: #007aff; color: white; border-color: #007aff; }
+.tabs { display: flex; gap: 4px; background: #fff; border-radius: 12px; padding: 6px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab { padding: 10px 14px; border: 0; background: transparent; color: #6e6e73; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.15s; display: flex; align-items: center; gap: 6px; font-family: inherit; }
+.tab:hover { background: #f5f5f7; color: #1d1d1f; }
+.tab.on { background: #1d1d1f; color: #fff; }
+.tcnt { background: rgba(0,0,0,0.08); padding: 2px 6px; border-radius: 10px; font-size: 11px; }
+.tab.on .tcnt { background: rgba(255,255,255,0.2); }
+.sec { display: none; } .sec.on { display: block; }
+.shdr { background: #fff; border-radius: 12px; padding: 14px 18px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.shdr h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.shdr p { font-size: 12px; color: #6e6e73; }
+.task { background: #fff; border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); border-left: 3px solid transparent; transition: all 0.15s; }
+.task.u-red { border-left-color: #ff3b30; }
+.task.u-org { border-left-color: #ff9500; }
+.task.u-yel { border-left-color: #ffcc00; }
+.task.s-done { opacity: 0.55; }
+.task.s-done .ttl { text-decoration: line-through; }
+.thdr { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.tog { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #d2d2d7; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; padding: 0; color: #fff; font-family: inherit; }
+.tog.s-rev { background: #007aff; border-color: #007aff; }
+.tog.s-dn { background: #34c759; border-color: #34c759; }
+.tbod { flex: 1; min-width: 0; }
+.ttl { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.tmeta { display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; color: #6e6e73; }
+.bdg { padding: 2px 8px; border-radius: 10px; background: #f5f5f7; }
+.bdg.dl { background: #fff5e6; color: #b35900; font-weight: 500; }
+.bdg.dl.urg { background: #ffe5e5; color: #c41230; }
+.caret { flex-shrink: 0; color: #c7c7cc; font-size: 18px; transition: transform 0.2s; }
+.task.open .caret { transform: rotate(90deg); }
+.det { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f0f3; font-size: 13px; color: #3a3a3c; }
+.task.open .det { display: block; }
+.dsec { margin-bottom: 12px; }
+.dsec:last-child { margin-bottom: 0; }
+.dlbl { font-weight: 600; color: #6e6e73; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 4px; }
+.dcnt { color: #1d1d1f; }
+.dcnt a { color: #007aff; text-decoration: none; word-break: break-all; }
+.dcnt a:hover { text-decoration: underline; }
+.dcnt ol { padding-left: 20px; margin: 4px 0; }
+.dcnt li { margin-bottom: 3px; }
+.sctrl { margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.sbtn { padding: 6px 12px; border: 1px solid #d2d2d7; background: #fff; border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: inherit; color: #1d1d1f; }
+.sbtn:hover { background: #f5f5f7; }
+.sbtn.on-rev { background: #007aff; color: #fff; border-color: #007aff; }
+.sbtn.on-dn { background: #34c759; color: #fff; border-color: #34c759; }
+.sync { text-align: center; font-size: 11px; color: #6e6e73; padding: 12px; margin-top: 8px; }
+.sync.err { color: #c41230; }
+.sync.save { color: #007aff; }
+.empty { background: #fff; text-align: center; color: #6e6e73; padding: 24px; border-radius: 10px; font-size: 13px; }
+.search-wrap { margin-bottom: 16px; }
+.search-inner { background: #fff; border-radius: 12px; padding: 4px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 10px; }
+.search-icon { font-size: 14px; color: #6e6e73; flex-shrink: 0; }
+.search-input { flex: 1; border: 0; outline: 0; padding: 12px 0; font-size: 14px; font-family: inherit; color: #1d1d1f; background: transparent; min-width: 0; }
+.search-input::placeholder { color: #a1a1a6; }
+.search-clear { background: #e8e8ed; color: #6e6e73; border: 0; width: 22px; height: 22px; border-radius: 11px; cursor: pointer; font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; flex-shrink: 0; }
+.search-clear:hover { background: #d2d2d7; color: #1d1d1f; }
+.search-status { margin-top: 8px; padding: 8px 14px; background: #e6f3ff; color: #0050a0; border-radius: 8px; font-size: 12px; }
+mark { background: #fff5b0; color: inherit; padding: 0 2px; border-radius: 2px; font-weight: 600; }
+@media (max-width: 600px) { body { padding: 10px; } header { padding: 16px; } header h1 { font-size: 18px; } .filters { padding: 12px; } .flbl { display: none; } .task { padding: 12px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Sahil's CMU BDes Fall 2026 onboarding</h1>
+  <p>Move-In Aug 15, 2026 &middot; Classes start Aug 24, 2026 &middot; Progress saves automatically across devices</p>
+</header>
+
+<div class="status">
+  <div class="prow">
+    <div class="plabel"><span>&#128065;&#65039; Reviewed</span><span class="pcount" id="rc">0 / 110</span></div>
+    <div class="pbar"><div class="pfill rev" id="rb" style="width: 0%;"></div></div>
+  </div>
+  <div class="prow">
+    <div class="plabel"><span>&#9989; Completed</span><span class="pcount" id="dc">0 / 110</span></div>
+    <div class="pbar"><div class="pfill dn" id="db" style="width: 0%;"></div></div>
+  </div>
+</div>
+
+<div class="urgent empty" id="urgent">
+  <h3>&#128293; Next 7 days &mdash; urgent</h3>
+  <div class="ulist" id="urgent-list"></div>
+</div>
+
+<div class="search-wrap">
+  <div class="search-inner">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" id="search" class="search-input" placeholder="Search tasks (e.g. 'dining', 'transcript', 'AP scores')&hellip;" autocomplete="off">
+    <button id="search-clear" class="search-clear" style="display:none" aria-label="Clear search">&times;</button>
+  </div>
+  <div id="search-status" class="search-status" style="display:none"></div>
+</div>
+
+<div class="filters">
+  <span class="flbl">Show:</span>
+  <button class="fbtn on" data-stf="all">All</button>
+  <button class="fbtn" data-stf="notstarted">Not started</button>
+  <button class="fbtn" data-stf="reviewed">Reviewed</button>
+  <button class="fbtn" data-stf="done">Done</button>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div id="sections"></div>
+<div class="sync" id="sync">Saved to this browser only</div>
+
+<script>
+/* ============================================================================
+   SAHIL'S CMU BDes FALL 2026 ONBOARDING TRACKER
+   ----------------------------------------------------------------------------
+   HOW TO EDIT TASKS:
+   - All task data lives in the RAW string below. One task per line.
+   - Field order (separated by the  ‖  character):
+       id ‖ section ‖ title ‖ dueDate(YYYY-MM-DD) ‖ dueLabel ‖ url ‖ steps ‖ ifMissed ‖ contact
+   - Steps within a task are separated by the  ¦  character.
+   - Leave a field empty (nothing between the ‖ delimiters) if not needed.
+   - Sections are defined in the SECTIONS array further down.
+   - Progress (Reviewed / Done) is saved in the browser via localStorage.
+   ========================================================================== */
+
+const SECTIONS = [
+  {id:'apr',label:'Late April',desc:'Foundation Setup'},
+  {id:'may',label:'May',desc:'Housing, Dining, Health Setup'},
+  {id:'jun',label:'June',desc:'Health, Tech, Course Prep'},
+  {id:'jul',label:'July',desc:'ID Card, Billing, Required Modules'},
+  {id:'aug1',label:'Early-Mid August',desc:'Final Pre-Arrival'},
+  {id:'movein',label:'Move-In',desc:'Aug 15-16 + Family Orientation'},
+  {id:'orient',label:'Orientation Week',desc:'Aug 17-23'},
+  {id:'sep',label:'September',desc:'Settling In'}
+];
+
+/* Task data. The § placeholders below are expanded by un() at load time:
+   §S§ => ://   §Q§ => ?   §A§ => &   §E§ => =   (keeps URLs/symbols readable in source) */
+const RAW = String.raw`
+t01‖apr‖Activate Andrew userID‖2026-04-30‖Within 24-48 hrs of email‖https§S§identity.andrew.cmu.edu‖Find activation email in personal email used on application¦Click the First Pass link¦Set strong Andrew password (passphrase recommended)¦Note your Andrew ID (3-8 chars, permanent)‖Cannot access ANY CMU service.‖it-help@cmu.edu / 412-268-4357
+t02‖apr‖Enroll in Duo Two-Factor Authentication‖2026-04-30‖Immediately after password‖https§S§2fa.cmu.edu/cmuTwoFactorRegistration/home‖Download Duo Mobile app¦Log in at 2fa.cmu.edu¦Complete Your Enrollment¦Scan QR code in Duo app¦CRITICAL: Add a SECOND device via Manage Devices¦Optional: YubiKey 5 for hardware backup‖Cannot log into any CMU Web Login service.‖it-help@cmu.edu / 412-268-4357
+t03‖apr‖Verify Personal Email §A§ Update SIO Profile‖2026-05-07‖Within 1 week‖https§S§s3.andrew.cmu.edu/sio/‖SIO → My Info → View and Update My Info¦Confirm personal email¦Verify date of birth (must match HealthConnect)¦Update emergency contacts‖Cannot recover password if locked out.‖thehub@andrew.cmu.edu / 412-268-8186
+t04‖apr‖Set Up CMU Google Mail‖2026-04-30‖Immediately‖https§S§gmail.google.com‖Sign in with andrewid@andrew.cmu.edu¦Install Gmail, Calendar, Drive mobile apps¦Set daily check habit‖You will miss critical onboarding emails.‖it-help@cmu.edu
+t05‖apr‖Open the CMU Housing Application‖2026-05-25‖Priority deadline May 25‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Wait 2 business days after Andrew activation¦Confirm "New First-Year" classification¦Read through application sections‖Late application §E§ end of lottery; possible Temporary Housing.‖housing@andrew.cmu.edu / 412-268-2139
+t06‖apr‖Join CMU Design Class of 2030+ Facebook Group‖2026-05-15‖Anytime late April‖‖Search Facebook for "CMU Design Class of 2030"¦Request to join¦Introduce yourself, connect with potential roommates‖‖jvance@andrew.cmu.edu
+t07‖may‖Complete StarRez Lifestyle Questionnaire‖2026-05-25‖May 25‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Verify personal info imported from SIO¦Complete Roommate Profile (sleep, study, cleanliness, social)¦Write 500-char About Me bio‖Cannot match with roommates or submit contract.‖rmassign@andrew.cmu.edu
+t08‖may‖Decide on Medical/Disability Housing Accommodations‖2026-05-25‖May 25 hard deadline‖https§S§rainier.accessiblelearning.com/CMU/Start.aspx§Q§Type§E§HSG‖Check accommodations box in StarRez¦Complete Housing Accommodations app at Rainier portal¦Download Healthcare Professional Supplement PDF¦Provider fills out + signs¦Upload BOTH student section and provider supplement¦DO NOT send medical docs to Housing Services directly‖Late requests go to waitlist; high school IEPs do NOT transfer.‖access@andrew.cmu.edu / 412-268-6121
+t09‖may‖Opt In to Specialized Communities (Optional)‖2026-05-25‖May 25‖https§S§www.cmu.edu/housing/our-communities/specialized-communities/index.html‖VERIFIED from 2026-27 housing PDF:¦Queer Community §E§ WELCH HOUSE (semi-suite single/double, central AC, semi-private bath, Margaret Morrison St)¦Any-Gender Community §E§ STEVER HOUSE 5th Floor (traditional double, central AC, communal bath, Yoga Room, elevator, Morewood Ave)¦Scobell House is ALL-WOMEN — Sahil cannot apply¦To opt in: select option in StarRez AND list that building as #1 preference¦Or skip if not relevant‖‖rmassign@andrew.cmu.edu
+t10‖may‖Confirm Roommate Group in StarRez‖2026-05-25‖Both must apply by May 25‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Search by Andrew ID OR Profile Details¦Send Message → Request to Join Group¦Roommate must Accept¦Finalize before moving on‖Mutual requests honored only if both apply by May 25.‖rmassign@andrew.cmu.edu
+t11‖may‖Rank Top 5 First-Year Building Preferences‖2026-05-25‖May 25‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖VERIFIED 2026-27 OFFICIAL RECOMMENDED RANKING for two CFA roommates wanting Semi-Suite Double:¦#1 MOREWOOD GARDENS — Semi-Suite Double $12,916/yr ($6,458/sem) — 300 beds. Central AC, semi-private bath, FITNESS ROOM, elevator, communal kitchen. On Morewood Ave. Best in-building amenities.¦#2 HENDERSON — Semi-Suite Double $12,916/yr ($6,458/sem) — only 54 beds. Central AC, semi-private bath, ELEVATOR, communal kitchen. Margaret Morrison St (closest to design building MMCH). Smallest most exclusive first-year community.¦#3 WELCH (Queer Community) — Semi-Suite Double $12,916/yr ($6,458/sem) — 34 beds. Central AC, semi-private bath, NO elevator, communal kitchen. Margaret Morrison St.¦#4 MUDGE — Semi-Suite Double $12,916/yr — 202 beds. NO AC, semi-private + communal bath, FITNESS ROOM, no elevator. Morewood Ave.¦#5 BOSS — Semi-Suite Double $12,916/yr — 60 beds. WINDOW UNIT AC, semi-private bath, no fitness, no elevator. Margaret Morrison St.¦SKIP THESE (all-women): Scobell. McGill possibly all-women — verify in StarRez.¦CHEAPER ALTERNATIVES if budget matters:¦Traditional Double (Hamerschlag/Stever/Donner/Scobell): $11,700/yr — saves $1,216/yr¦Traditional Triple (Donner/Mudge): $10,482/yr¦Double-as-Triple (Donner/Maggie Mo): $9,442/yr — cheapest option¦MAGGIE MO unique feature: ONLY first-year building with FULL KITCHEN. Window unit AC.¦Match rankings exactly with roommate group or you wont match together.‖Cancellation fee $400 fall / $200 spring if you withdraw. Rates from official CMU 2026-27 housing PDF.‖rmassign@andrew.cmu.edu / 412-268-2139
+t12‖may‖Choose Room Type Preference‖2026-05-25‖May 25‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖VERIFIED 2026-27 PRICING (per academic year):¦Semi-Suite Double: $12,916 — RECOMMENDED for Sahil + roommate. Available in Boss, Henderson, Maggie Mo, McGill, Morewood Gardens, Mudge, Welch¦Semi-Suite Single: $14,994 — rare, very limited availability¦Semi-Suite Triple: $11,700 — only at Morewood Gardens¦Traditional Double: $11,700 — Hamerschlag, Stever, Donner, Mudge, Scobell¦Traditional Single: $13,668 — extremely rare for FY¦Traditional Triple: $10,482 — Donner, Mudge¦Double-as-Triple: $9,442 — Donner, Maggie Mo (cheapest)¦Apartment Triple: $13,986 — Residence on Fifth only¦Studio Apt Double/Triple: $13,622 — Clyde House, Residence on Fifth¦BDes recommendation: Semi-Suite Double balances cost, privacy (semi-private bath), and roommate compatibility‖‖rmassign@andrew.cmu.edu
+t13‖may‖Review §A§ Sign Housing Contract (Parent E-Sig Required)‖2026-05-25‖May 25 — under 18 needs parent sig‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Read entire contract (binding full year)¦Request parent/guardian e-signature¦Submit final application¦Wait for confirmation email‖Without signed contract + confirmation, application is incomplete. Cancellation fee $400.‖housing@andrew.cmu.edu
+t14‖may‖Submit Dining Plan Agreement‖2026-05-31‖May 31‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Green: $8,628/yr — 18 meals/wk + $280 FLEX¦Blue (DEFAULT): $8,168/yr — 16 meals/wk + $540 FLEX¦Red: $7,736/yr — 13 meals/wk + $880 FLEX¦Yellow: $3,768/yr — Rez on Fifth/Clyde ONLY¦Parent e-sig required if under 18‖Auto-assigned Blue. First-years cannot cancel — only change plans. Final change deadline Sep 18.‖dining@andrew.cmu.edu / 412-268-3782
+t15‖may‖Access HealthConnect (Opens Mid-May)‖2026-05-20‖As soon as it opens‖https§S§healthservices.andrew.cmu.edu‖Confirm SIO date of birth matches¦Log in with Andrew ID¦Update Profile → enable text messaging¦Familiarize with Clearances, Health History, TB sections‖Cannot submit immunization records before Aug 11.‖health@andrew.cmu.edu / 412-268-2157 opt 2
+t16‖may‖Submit Parent §A§ Family Information Form‖2026-06-30‖Before late June‖https§S§www.cmu.edu/family/info-form.html‖Parent completes Wufoo form¦Confirmation email sent¦Auto-subscribes to Fence Post + Talking Tartan‖Parent misses summer onboarding communications and Family Weekend invites.‖family@andrew.cmu.edu / 412-268-2142
+t17‖jun‖Attend First-Year Welcome Webinar‖2026-06-01‖June 1, 7-8:30 PM ET‖https§S§www.cmu.edu/first-year-orientation/‖Register on FYO site in advance¦Attend live¦Submit questions via registration form‖‖orientation@andrew.cmu.edu / 412-268-2142
+t18‖jun‖Begin Immunization Records §A§ TB Screening‖2026-08-11‖START NOW (Aug 11 final)‖https§S§healthservices.andrew.cmu.edu‖Schedule home provider appointment in Bay Area¦Required: MMR 2 doses, Varicella 2 doses, Meningococcal ACWY¦Recommended: Meningitis B, Tdap, Hep A/B, HPV9, Polio, Flu¦Bring CMU Immunization Record Form for signature¦Upload signed form + complete TB Questionnaire¦IGRA blood test if triggered (4-week wait after live vaccine)¦Health History Form + Treatment Agreement + Privacy‖Registration block + removal from housing.‖health@andrew.cmu.edu / 412-268-2157 opt 2
+t19‖jun‖Submit CMU ID Card Photo‖2026-07-01‖July 1 deadline‖https§S§csgapp.andrew.cmu.edu/idphotos/‖Passport-style color photo¦Full face, both eyes open, natural expression¦NO hats, headphones, sunglasses¦Taken within last 6 months¦Log in at csgapp.andrew.cmu.edu/idphotos¦Upload and crop‖Must visit HUB in person during Orientation Week (long lines).‖idplus@andrew.cmu.edu / 412-268-8186
+t20‖jun‖BDes Advisor Outreach (Jamie Kosnosky)‖2026-06-15‖Early June‖‖Watch for email from jvance@andrew.cmu.edu¦Respond with questions¦BDes students pre-registered for ALL fall courses by advisor:¦51-101 Studio: Survey of Design (10 units)¦51-121 Design Drawing I (10 units)¦51-175 Design Studies: Place (5 units)¦51-177 Design Studies: Histories (5 units)¦76-101 Interpretation and Argument (9 units)¦88-120 Reason, Passion and Cognition (9 units)¦99-101 Core@CMU (3 units)‖‖Jamie Kosnosky — jvance@andrew.cmu.edu
+t21‖jun‖First-Year Writing Multilingual Placement‖2026-07-31‖July 31‖https§S§www.cmu.edu/dietrich/english/academic-programs/writing-and-communication/fyw-course-placement.html‖Only required if multilingual §A§ English somewhat weaker¦Sahil from Fremont — likely exempt but verify¦Once started must finish within 96 hours‖May default into extra semester of writing.‖astoebe@andrew.cmu.edu
+t22‖jun‖Apply for Advanced FYW 76-102 (Optional)‖2026-07-01‖July 1‖https§S§www.cmu.edu/dietrich/english/academic-programs/writing-and-communication/fyw-course-placement.html‖Complete Google form application¦If accepted, take 76-102 instead of 76-101¦Email Jamie Kosnosky since BDes pre-registered for 76-101‖‖astoebe@andrew.cmu.edu
+t23‖jun‖Confirm Adobe Creative Cloud Licensing for BDes‖2026-06-30‖Mid-June‖https§S§www.cmu.edu/computing/software/titles/adobe-creative-cloud/index.html‖Email Jamie Kosnosky asking about BDes Creative Cloud licenses¦Adobe NOT universally free at CMU¦If licensed: sign in as andrewid@andrew.cmu.edu → Company or School Account‖‖jvance@andrew.cmu.edu
+t24‖jun‖Activate Microsoft 365 Access‖2026-06-30‖Anytime‖https§S§portal.office.com‖Sign in with andrewid@andrew.cmu.edu¦Use Word, Excel, PowerPoint, OneDrive, Teams, Copilot¦DO NOT use Outlook for email — CMU uses Google‖‖it-help@cmu.edu
+t25‖jun‖Set Up My Plaid Student Access for Parent‖2026-07-31‖Before first invoice‖https§S§www.cmu.edu/hub/MyPlaidStudent/‖Sahil: SIO → My Info → Manage Family §A§ Friends¦Add parent + email; select what to share¦Parent receives Cirrus Identity invitation¦Parent registers via Google or LinkedIn¦Parent sets up MFA, logs into MPS‖‖thehub@andrew.cmu.edu / 412-268-8186
+t26‖jun‖Set Up Invoice Authorization for Parent‖2026-07-31‖Before first invoice‖https§S§www.cmu.edu/sfs/billing/invoice-authorization.html‖SIO → My Info → Manage Family §A§ Friends¦Add parent as bill payer¦Parent receives monthly invoice PDFs by email‖‖thehub@andrew.cmu.edu
+t27‖jun‖Send AP Score Reports to CMU‖2026-07-01‖Request by July 1‖https§S§apstudents.collegeboard.org/sending-scores/online‖Order scores via College Board¦Search by name; verify CEEB code at order step¦Include current and past-year scores¦Scores 4-5 may earn AP credit¦AP English does NOT satisfy First-Year Writing¦IB: HL only, scores 6-7‖Credit not applied before fall registration.‖cmuregistrar@andrew.cmu.edu
+t28‖jun‖Set Up TimelyCare Account‖2026-06-30‖Anytime‖https§S§timely.md/schools/index.html§Q§school§E§cmu‖Register with andrewid@andrew.cmu.edu (NOT affiliate email)¦Download TimelyCare app¦Free: TalkNow + 12 Counseling sessions/year‖‖833-484-6359 / help@timely.md
+t29‖jun‖Parent: Subscribe to CMU-Alert as Visitor‖2026-06-30‖Anytime‖‖Text VISITORS to 67283¦Receive emergency notifications¦Unsubscribe: text STOP VISITORS to 67283‖‖
+t30‖jul‖ID Card Photo Final Deadline‖2026-07-01‖July 1 hard deadline‖https§S§csgapp.andrew.cmu.edu/idphotos/‖Final reminder — DO NOT MISS‖‖idplus@andrew.cmu.edu
+t31‖jul‖AP Score Send Deadline‖2026-07-01‖July 1‖https§S§apstudents.collegeboard.org/sending-scores/online‖Final AP score reminder¦Must arrive by July 31‖‖cmuregistrar@andrew.cmu.edu
+t32‖jul‖Watch for Housing Assignment Release‖2026-07-07‖First week of July‖https§S§s3.andrew.cmu.edu/sio/‖SIO → Campus Life → Housing Assignment¦View hall, room, roommate(s), meal plan¦Note Housefellow (Resources → Student Affairs Contact)¦Note SMC mailbox number (My Info → bottom)‖‖rmassign@andrew.cmu.edu
+t33‖jul‖FERPA Consent to Release Information‖2026-07-31‖Early July‖https§S§www.cmu.edu/hub/docs/consent.pdf‖Download Consent PDF¦Select categories (academic, financial aid, account, disciplinary)¦Name parent specifically¦Sign (only student can sign)¦Submit to HUB at Warner Hall OR email thehub@andrew.cmu.edu‖HUB cannot discuss grades or financial aid with parent. My Plaid Student alone is insufficient.‖thehub@andrew.cmu.edu
+t34‖jul‖Open PNC Virtual Wallet Student Account‖2026-07-31‖Before fall semester‖https§S§www.pnc.com/en/personal-banking/banking/student-banking/alliance-schools/carnegie-mellon-university.html‖Open Virtual Wallet Student online (no monthly fee under 25)¦Once CMU ID issued: visit Craig Street PNC (4600 Fifth Ave)¦Link CMU ID as ATM card¦Two PNC ATMs on Cohon UC 1st floor (one accepts deposits)‖‖Craig St 412-683-7161
+t35‖jul‖Set Up Refund Direct Deposit in SIO‖2026-07-15‖Before mid-July‖https§S§s3.andrew.cmu.edu/sio/‖SIO → Finances → Bank Account List → + add account¦Enter routing §A§ account number¦Check Refund account box¦Same-day eCheck if scheduled before 7 PM EST‖‖thehub@andrew.cmu.edu
+t36‖jul‖Monitor for First Tuition Invoice‖2026-07-31‖Issued last day of July‖https§S§s3.andrew.cmu.edu/sio/‖Watch for email (and parent if Invoice Auth set up)¦CMU does NOT mail paper invoices¦Review charges; calculate balance‖‖thehub@andrew.cmu.edu
+t37‖jul‖Decide on Payment Method‖2026-08-15‖Plan by mid-July‖https§S§www.cmu.edu/sfs/billing/payments/‖eCheck (FREE) — SIO Finances¦Credit card via ECSI — 2.52% fee¦529 Plan Check — payable to "Carnegie Mellon University"¦Mail to: Student Accounts, 5000 Forbes Ave, Warner Hall A19, Pittsburgh PA 15213¦Nelnet Monthly Plan — $45/semester fee, NO auto-roll¦DO NOT wire directly — $50 fee‖‖thehub@andrew.cmu.edu
+t38‖jul‖Submit 529 Payment Extension Request (If Late)‖2026-08-15‖Before Aug 15 if needed‖https§S§www.cmu.edu/sfs/docs/529-deferment.pdf‖Complete extension form each semester¦Attach verification of 529 disbursement request‖‖thehub@andrew.cmu.edu
+t39‖jul‖Complete Safer Scotties: Navigating Substance Use‖2026-08-16‖Aug 16 (opens July 15)‖https§S§canvas.cmu.edu/‖Log into Canvas¦Find "Safer Scotties: Navigating Substance Use" module¦Complete asynchronously (~90 min)‖Non-compliance; possible Dean of Students follow-up.‖healthpromotion@andrew.cmu.edu
+t40‖jul‖Complete Safer Scotties: Healthy Relationships (Title IX)‖2026-08-16‖Aug 16‖https§S§canvas.cmu.edu/‖Log into Canvas¦Complete Healthy Relationships module¦Covers consent, healthy relationships, prevention‖‖healthpromotion@andrew.cmu.edu
+t41‖jul‖Watch for Fall 2026 SHIP Open Enrollment Announcement‖2026-07-01‖~Early July announcement‖https§S§www.cmu.edu/health-services/student-insurance/‖IMPORTANT: If logged into SIO before July and only sees Summer Open Enrollment (May 1-31), that does NOT apply to Sahil¦Summer OE is ONLY for students starting in Spring or Summer term¦Sahil starts Fall 2026 so he needs FALL OE (separate window)¦Based on Fall 2025 pattern: announcement came July 1, 2025 via Andrew email¦Watch Andrew email and cmu.edu/health-services/student-insurance starting late June¦When Fall OE opens, the SIO Insurance Portal will become available¦Coverage period when enrolled: Aug 1, 2026 – Jul 31, 2027¦Decide whether to ENROLL in SHIP or WAIVE with existing family insurance‖Missing the announcement means missing the actual deadline. Without action by deadline §E§ auto-enrolled + $50 fee.‖shinsure@andrew.cmu.edu / 412-268-2157 opt 3
+t42‖jul‖ENROLL or WAIVE Fall 2026 SHIP — Critical for CA Family Plan‖2026-08-22‖Late Aug (TBD — confirm when Fall OE opens)‖https§S§s3.andrew.cmu.edu/sio/‖DEADLINE IS ESTIMATED Aug 21-22 based on Fall 2025 pattern (final reminder was 8.28.25 last year)¦Exact 2026-27 deadline confirmed when Fall OE announcement arrives ~July 1¦SIO → Campus Life → Health Insurance → Insurance Portal (portal only works during your OE window)¦Premium: $3,093 student-only; coverage Aug 1 2026 – Jul 31 2027¦TO ENROLL: select Medical (required), optional Dental ($196), Vision ($63)¦TO WAIVE: upload front/back of insurance ID card¦WAIVER REQUIREMENTS: US-licensed insurance, unlimited benefits, active by Aug 1, deductible <§E§ $5K, covers urgent care + mental health + substance abuse with NO session limits¦CRITICAL: Many CA HMOs (Kaiser HMO etc.) are NOT in-network in Pittsburgh — verify with carrier before waiving¦Parents/caregivers CANNOT submit enrollment or waiver on behalf of student — Sahil must do it himself¦Optional dental and vision plans ONLY available during your OE window (cannot add later)‖Auto-enrolled in medical SHIP + $50 processing fee + 6-8 week activation delay. Cannot enroll in dental/vision after OE ends.‖shinsure@andrew.cmu.edu / 412-268-2157 opt 3
+t43‖jul‖Sign Up for Move-In Timeslot‖2026-07-31‖Mid-July‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Select timeslot for Sat Aug 15, 9 AM-3:30 PM ET¦Sensory-friendly slot 1:30-2:30 PM available¦Religious accommodation: email rmassign@andrew.cmu.edu‖‖rmassign@andrew.cmu.edu
+t44‖jul‖Install Cisco Secure Client VPN‖2026-07-31‖Anytime in July‖https§S§cmu.onthehub.com/p/cisco‖Uninstall old Cisco VPN¦Download Cisco Secure Client¦Open → enter vpn.cmu.edu → Connect¦Andrew credentials + Duo‖‖it-help@cmu.edu
+t45‖jul‖Verify CMU ID Card Arrives at Fremont Address‖2026-08-01‖Cards mailed late July‖‖Watch mail at Fremont CA address¦If not arrived by Aug 1, email housing@andrew.cmu.edu¦If photo not submitted, plan HUB visit during Orientation‖‖housing@andrew.cmu.edu
+t46‖jul‖Book Family Hotel for Move-In Weekend‖2026-07-10‖Book by early July‖https§S§www.cmu.edu/parents/events/travel-and-hotels.html‖CMU Special Rate hotels:¦Hilton Garden Inn — 412-683-2040¦Hotel Indigo Oakland — 412-621-0880¦The Oaklander Hotel — 412-578-8500¦Courtyard Marriott Univ Ctr — 412-682-6251¦Omni William Penn (downtown)¦Renaissance Pittsburgh (downtown)¦Call directly, ask for CMU rate¦Book ASAP‖‖
+t47‖aug1‖Pay First Tuition Invoice‖2026-08-15‖Aug 15, 5 PM ET‖https§S§s3.andrew.cmu.edu/sio/‖Confirm payment method active¦Submit payment¦Verify transaction in SIO‖Past-due: 1.5% monthly interest; financial hold blocks registration/diploma/transcripts.‖thehub@andrew.cmu.edu
+t48‖aug1‖Final Immunization §A§ TB Submission‖2026-08-11‖Aug 11 HARD DEADLINE‖https§S§healthservices.andrew.cmu.edu‖All immunization doses entered¦Signed Immunization Record Form uploaded¦TB Questionnaire + IGRA if triggered¦Health History Form complete¦Treatment Agreement + Privacy acknowledged‖Registration block + removal from housing.‖health@andrew.cmu.edu
+t49‖aug1‖Final Safer Scotties Completion Check‖2026-08-16‖Aug 16‖https§S§canvas.cmu.edu/‖Verify BOTH Safer Scotties modules complete¦Substance Use module¦Healthy Relationships (Title IX) module‖‖healthpromotion@andrew.cmu.edu
+t50‖aug1‖Complete Career Launch Modules 1-3 (Optional)‖2026-08-14‖~Aug 14‖https§S§canvas.cmu.edu/‖Canvas → Career Launch (CPDC)¦~60 min: Intro to CPDC, Handshake, Resumes §A§ Covers‖‖CPDC
+t51‖aug1‖Ship Packages to SMC Mailbox (Mid-Aug Only)‖2026-08-15‖After mid-August‖https§S§www.cmu.edu/postoffice/incoming/smc.html‖DO NOT ship before mid-August¦Address: [Sahil Name] / SMC #### / Carnegie Mellon University / 5032 Forbes Avenue / Pittsburgh PA 15289-####¦Box max 16x20x20 in, 70 lbs¦CMU warns against same-day Amazon deliveries¦Refrigerated meds: call UHS first 412-268-2157 opt 2‖‖post-office@andrew.cmu.edu
+t52‖aug1‖Pack Per CMU What to Bring Guidelines‖2026-08-13‖Before travel‖https§S§www.cmu.edu/housing/resident-services/what-to-bring.html‖Already in room: XL twin bed 39x80in, desk + chair, dresser, internet¦Bring: XL twin sheets, towels, toiletries, warm clothes, hangers, lamp, alarm, power strip, laundry stuff, dishes, storage bins, chargers¦Optional: bike + lock, fan (Mudge/E-Tower/Donner have NO AC), microwave <700W, mini-fridge <4.5 cu ft¦PROHIBITED: AC units, candles, pets except 5gal fish, space heaters, halogen lamps, hot plates, toasters, coffee pots, slow cookers, hoverboards¦Rez on Fifth: induction-compatible cookware only‖‖housing@andrew.cmu.edu
+t53‖aug1‖Verify Course Schedule in SIO‖2026-08-20‖Mid-to-late August‖https§S§s3.andrew.cmu.edu/sio/‖SIO → Courses/Schedule¦Confirm all 6-7 BDes courses appear¦Confirm AP credit shows¦Print a copy‖‖jvance@andrew.cmu.edu
+t54‖aug1‖Sign Up for Math Placement (Optional for BDes)‖2026-08-17‖Mon Aug 17‖https§S§www.cmu.edu/math/undergrad/exams/mathematics-placement-information.html‖Only if continuing math beyond AP¦Waivers: AP Precalc 5, SAT Math 670+, ACT Math 29+¦Email calcplacement@cmu.edu¦Most BDes do NOT need this‖‖calcplacement@cmu.edu
+t55‖aug1‖Complete Language Placement (If Continuing)‖2026-08-15‖Before registration‖https§S§www.cmu.edu/dietrich/modlang/academics/undergraduate/placement/‖Required if continuing language + have AP/IB credit¦Web-based: French, German, Spanish¦Chinese/Japanese/Italian/Russian/Arabic: contact Dietrich Modlang‖‖Dietrich Modlang dept
+t56‖aug1‖Collect MAC Addresses for IoT Devices‖2026-08-13‖Before move-in‖https§S§getonline.cmu.edu/hosts/register/wireless/‖Find MAC for: gaming consoles, smart TV, Roku, Alexa, etc.¦Write them down to register after move-in¦On macOS Tahoe: disable Private Wi-Fi address‖‖it-help@cmu.edu
+t57‖movein‖Move-In Day Check-In‖2026-08-15‖Sat Aug 15, your timeslot‖https§S§www.cmu.edu/housing/first-year-move-in/index.html‖Arrive at assigned unloading zone¦Check in at Welcome Plaza¦Sahil gets Class of 2030+ T-shirt (wear Tuesday)¦Parent gets family button + resources¦Volunteers help unload¦Pick up keys¦Visit Tartan Resource Expo¦Set up room¦Dinner on your own (meal plan starts Aug 23)‖‖housing@andrew.cmu.edu / 412-268-2139
+t58‖movein‖Pick Up CMU ID Card (If Not Mailed)‖2026-08-15‖Move-In Day‖https§S§www.cmu.edu/idplus/idphotos/index.html‖If card was mailed: bring from Fremont¦If not: visit ID Card Services at HUB¦International: pick up at three neighborhood locations‖‖idplus@andrew.cmu.edu
+t59‖movein‖Late Check-In Plan (If After 3:30 PM)‖2026-08-15‖Sat Aug 15 evening‖‖4 PM-midnight: Residence on Fifth front desk¦Service Desk: 412-268-1518¦Sun Aug 16: desk reopens 9 AM-midnight¦Later: email rmassign@andrew.cmu.edu‖‖rmassign@andrew.cmu.edu
+t60‖movein‖Connect to CMU-SECURE Wi-Fi‖2026-08-15‖On arrival‖https§S§www.cmu.edu/computing/services/endpoint/network-access/wireless/how-to/connect.html‖Select CMU-SECURE¦Andrew userID + password¦Accept security certificate¦Authenticate via Duo‖‖it-help@cmu.edu
+t61‖movein‖Set Up Campus Printing (PaperCut)‖2026-08-20‖Early Orientation week‖https§S§www.cmu.edu/computing/services/endpoint/printing-kiosks/how-to/index.html‖Install printer drivers¦Submit jobs to PaperCut¦Tap CMU ID at release station¦$40/semester quota auto-granted‖‖it-help@cmu.edu
+t62‖movein‖Find SMC Mailbox §A§ Practice Combination‖2026-08-16‖Move-In weekend‖https§S§www.cmu.edu/postoffice/incoming/smc.html‖Cohon UC, lower level, right of Postal Services¦Combination from SIO → My Info¦LEFT past 0 (3+ times) → 1st number¦RIGHT past 2nd → stop on 2nd second time¦LEFT to 3rd → RIGHT to open¦Parcel pickup: Door A (#1000-3999); Door B (#4000-7359)‖‖post-office@andrew.cmu.edu
+t63‖movein‖Attend Family Orientation (Aug 15-16)‖2026-08-16‖Sun Aug 16‖https§S§www.cmu.edu/parents/events/family-orientation.html‖President Welcome (Jahanian + Garrett + Casalegno)¦College §A§ School Welcome (BDes: School of Design)¦Family Orientation Grab-and-Go Lunch¦Family Focus Sessions¦Orientation for Students with Disabilities §A§ Families¦Family Farewell¦See Ya Later Scotty send-off 5:00-5:30 PM ET¦Depart Pittsburgh by Sunday evening‖‖family@andrew.cmu.edu / 412-268-2142
+t64‖movein‖Save Lockout Backup Plan to Phone‖2026-08-15‖Move-In Day‖‖1. CBORD Mobile ID app on CMU-SECURE near lock¦2. access.housing.cmu.edu for temp code¦3. Housing Services 412-268-2139 (M-F 8:30-5)¦4. Rez on Fifth Service Desk 412-268-1518¦5. After 10 PM: CMU Police 412-268-2323¦Default PIN §E§ birth month + date (Feb 3 §E§ 0203)¦Rez on Fifth/Clyde: press # after PIN‖‖412-268-2139 / 412-268-2323
+t65‖movein‖Save Maintenance Contacts to Phone‖2026-08-15‖Move-In Day‖‖Emergency: FMS Service Response 412-268-2910 / fixit@cmu.edu (24/7)¦Non-emergency: ServiceNow ticket via Housing §A§ Dining Portal¦Urgent custodial: 412-268-2036‖‖fixit@cmu.edu
+t66‖orient‖Monday Aug 17 — House Day‖2026-08-17‖Mon Aug 17‖‖Housefellow/CA/RA programs in your hall¦Playfair and Speedfriending icebreakers¦Download Events at CMU app‖‖orientation@andrew.cmu.edu
+t67‖orient‖Tuesday Aug 18 — Well-Being Day‖2026-08-18‖Tue Aug 18‖‖Wear Class of 2030+ T-shirt¦Well-Being Sessions¦Wellness Samplers (meditation, sound bath)¦Evening Entertainment¦Visit: TimelyCare, CaPS, Headspace‖‖orientation@andrew.cmu.edu
+t68‖orient‖Wednesday Aug 19 — Community Day‖2026-08-19‖Wed Aug 19‖‖Community Day program¦Community Collage (cultural performances)¦Class of 2030+ Photo¦Evening Entertainment¦Transfer students arrive AM‖‖orientation@andrew.cmu.edu
+t69‖orient‖Thursday Aug 20 — Academic Day §A§ Convocation‖2026-08-20‖Thu Aug 20‖‖College/school welcome events¦CFA School of Design welcome with Jamie Kosnosky¦Convocation by President Jahanian¦Community Showcase¦Meet BDes cohort and faculty‖‖jvance@andrew.cmu.edu
+t70‖orient‖Friday Aug 21 — Service Day‖2026-08-21‖Fri Aug 21‖‖Community Commitment (service projects)¦Info Sessions from Campus Resources¦Student Organization Events¦Carnegie Cup (house competition)‖‖orientation@andrew.cmu.edu
+t71‖orient‖Saturday Aug 22 — Pittsburgh Connections‖2026-08-22‖Sat Aug 22‖‖Pittsburgh Connections Trips (rafting, riding, kayaking — FREE)¦Student Org Events¦El Cookout¦First-Year Showcase‖‖orientation@andrew.cmu.edu
+t72‖orient‖Sunday Aug 23 — FSL Bash §A§ Meal Plans Begin‖2026-08-23‖Sun Aug 23‖‖Student Organization Events¦Fraternity §A§ Sorority Life Bash¦Regular meal plans begin today¦First day of classes is tomorrow‖‖orientation@andrew.cmu.edu
+t73‖orient‖Take Math Placement Exam (If Signed Up)‖2026-08-23‖Orientation Week‖https§S§www.cmu.edu/math/undergrad/exams/mathematics-placement-information.html‖Only if signed up earlier¦During Orientation Week per dept schedule‖‖calcplacement@cmu.edu
+t74‖orient‖Download Rave Guardian Safety App‖2026-08-17‖Early Orientation Week‖‖App Store / Google Play search "Rave Guardian"¦Select Carnegie Mellon University¦Set emergency contacts¦Features: text CMUPD, Safety Timer, one-touch 911¦CMU official safety app — NOT LiveSafe‖‖campuspd@andrew.cmu.edu
+t75‖orient‖Identify Blue Light SOS Phone Locations‖2026-08-17‖Early Orientation Week‖‖50+ emergency phones with blue light¦Press → direct CMU Police¦Identify near dorm and academic buildings‖‖412-268-2323
+t76‖orient‖Learn NightSafe Transit‖2026-08-17‖Early Orientation Week‖https§S§www.cmu.edu/transportation/transport/nightsafe.html‖Hours: 6:30 PM – 4:15 AM¦Zones: Blue, Green, Red, Yellow¦Check schedule → wait at pickup → tap CMU ID¦Track live on TripShot app‖‖transportation@andrew.cmu.edu
+t77‖orient‖Set Up Ready2Ride App for PRT Bus‖2026-08-17‖Early Orientation Week‖https§S§www.cmu.edu/prt‖MAJOR CHANGE: As of April 6 2026, CMU ID NOT accepted on PRT¦Download PRT Ready2Ride app (FREE)¦Verify CMU eligibility¦Use for free PRT rides‖‖transportation@andrew.cmu.edu
+t78‖orient‖Verify CMU-Alert Settings in SIO‖2026-08-17‖Early Orientation Week‖https§S§s3.andrew.cmu.edu/sio/‖SIO → Profile → Contact Info¦Confirm mobile phone is correct¦Save cmu-alert@andrew.cmu.edu and 412-268-2578 as contacts¦Whitelist in spam filters‖‖cmu-alert@andrew.cmu.edu
+t79‖orient‖Initial CaPS Consultation (If Needed)‖2026-08-23‖Orientation Week‖https§S§www.cmu.edu/counseling/‖Call 412-268-2922 (M-F 9-4:30)¦Request initial consultation (virtual Zoom Healthcare)¦Same-day urgent: 10-12 AM and 1-4 PM¦Highmark Center, 100 Tech Street, 4th Floor¦24/7 crisis: press 1 after hours¦Short-term care only — does NOT treat ADHD long-term¦SHIP covers 100% in-network mental health‖‖412-268-2922
+t80‖orient‖Apply for Academic Accommodations Through ODR‖2026-08-23‖ASAP if applicable‖https§S§rainier.accessiblelearning.com/cmu/start‖Log in with Andrew credentials¦Complete online application¦Upload medical/professional docs¦ODR schedules intake meeting¦Each semester: send Summary of Accommodations to instructors¦Separate from housing accommodations¦High school IEPs do NOT transfer¦Accommodations are NOT retroactive‖‖access@andrew.cmu.edu / 412-268-6121
+t81‖orient‖First Visit to UHS (If on Chronic Meds)‖2026-09-15‖Within first 30 days‖https§S§healthservices.andrew.cmu.edu‖Bring 30-day min / 90-day ideal med supply¦Summary of Care letter from prescriber (English)¦Diagnosis, dosage, recent labs¦Psych meds: contact CaPS first for transition support‖‖health@andrew.cmu.edu / 412-268-2157 opt 2
+t82‖orient‖Open PNC Account During Orientation (Backup)‖2026-08-23‖Orientation Week‖https§S§www.pnc.com/en/personal-banking/banking/student-banking/alliance-schools/carnegie-mellon-university.html‖Visit PNC reps in Cohon UC during Orientation¦Open Virtual Wallet Student¦Link CMU ID as ATM card‖‖Craig St 412-683-7161
+t83‖sep‖Final Dining Plan Change Deadline‖2026-09-18‖Fri Sep 18, 5 PM‖https§S§cmu.starrezhousing.com/StarRezPortalX/‖Decide if current plan is right after first weeks¦Change to another Traditional Plan if needed¦First-years CANNOT cancel — only change¦Changes before Aug 23 §E§ full refund/charge¦Aug 24-Sep 18 §E§ prorated based on usage‖Stuck with current plan for full year if missed.‖dining@andrew.cmu.edu
+t84‖sep‖Add/Drop Course Period‖2026-09-08‖Per Academic Calendar‖https§S§www.cmu.edu/hub/calendar/‖Review course load with Jamie Kosnosky¦BDes Foundation Year courses all required¦Add/drop mostly for Gen Ed / H§A§SS elective‖‖jvance@andrew.cmu.edu
+t85‖sep‖Late SHIP Waiver Window (If Missed)‖2026-09-05‖~2 weeks after Aug 22‖https§S§s3.andrew.cmu.edu/sio/‖Late waiver: +$50 fee¦Appeals up to 90 days after OE deadline‖‖shinsure@andrew.cmu.edu
+t86‖sep‖Activate CMU ID Card for PNC ATM Use‖2026-09-30‖After PNC account + CMU ID‖‖Visit Craig Street PNC branch (4600 Fifth Ave)¦Link CMU ID to PNC checking¦Use at PNC ATMs surcharge-free (STAR/PLUS network)¦Cannot use as credit card‖‖412-683-7161
+t87‖sep‖Load Plaid Cash / DineXtra If Needed‖2026-09-30‖Anytime‖https§S§www.cmu.edu/idplus/plaidcash/deposits.html‖Plaid Cash: Deposit via SIO using Visa/Mastercard or HUB¦For copiers, printers, vending, dining, approved vendors¦DineXtra: Add via GET Funds web/app¦1% bonus per $100 deposit (up to 10% — $1000 §E§ $100 bonus)¦Parents deposit using Sahil name + 9-digit ID Card number‖‖idplus@andrew.cmu.edu
+t88‖sep‖Mid-Semester Check-In with Jamie Kosnosky‖2026-10-05‖End of Sep / early Oct‖‖Email Jamie to schedule¦Review studio progress, course load, concerns¦Min 2.0 GPA required for Professional Program¦Below C in Design courses → probation/suspension‖‖jvance@andrew.cmu.edu
+t89‖sep‖Establish Routine Health Check-Ins‖2026-09-30‖Within first 30 days‖https§S§healthservices.andrew.cmu.edu‖Schedule first UHS or CaPS visit if needed¦SHIP: preventive care FREE in-network¦Annual check-ups, vaccines, screenings covered‖‖health@andrew.cmu.edu
+t90‖sep‖Bookmark Key Resources for Parent‖2026-09-15‖Anytime‖https§S§www.cmu.edu/family/events/‖Family Engagement webinars page¦CMU Cares Referral Form: cmu.edu/wellbeing/resources/finding-support-for-others.html¦Student Support Resources: 412-268-2075¦Headspace (free): cmu.edu/wellbeing/resources/headspace.html‖‖family@andrew.cmu.edu
+t91‖sep‖Plan Spring §A§ Mini-2 Billing Reminders‖2026-09-30‖Anytime in Sep‖https§S§www.cmu.edu/sfs/‖Mini-2 only payment due: October 15, 2026¦Spring All / Mini-3 due: January 15, 2027¦Nelnet Spring: does not auto-roll, must re-enroll¦Watch Spring SHIP Open Enrollment if started Spring‖‖thehub@andrew.cmu.edu
+t92‖sep‖Submit Maintenance Tickets for Room Issues‖2026-09-30‖As needed‖‖Housing §A§ Dining Portal → Maintenance link¦Emergency: FMS 412-268-2910 / fixit@cmu.edu (24/7)¦Urgent custodial: 412-268-2036‖‖fixit@cmu.edu
+t93‖sep‖Connect with Design Community‖2026-09-30‖Throughout September‖‖Attend School of Design events¦Visit School of Design office at MMCH 110¦Participate in BDes cohort gatherings¦Consider Design student organizations‖‖School of Design 412-268-2828
+t94‖sep‖First Family Weekend Planning‖2026-09-30‖Watch for announcement‖https§S§www.cmu.edu/family/events/‖Watch for Family Weekend dates¦Book hotel early (CMU Special Rate hotels)¦Plan trip details‖‖family@andrew.cmu.edu
+t95‖jul‖Final High School Transcript Sent to CMU‖2026-08-15‖Mid-August (financial aid) / Aug 24 first day classes‖https§S§www.cmu.edu/admission/admission/admission-faq‖Email Sahil high school counselor in June to schedule sending final official transcript with graduation date¦Counselor can send three ways:¦1. Electronically via school document submission system¦2. Email to CMU Office of Admission¦3. Mail to: Carnegie Mellon University, Office of Admission, 5000 Forbes Avenue, Pittsburgh PA 15213¦Verify receipt by logging into "Where Am I in the Process§Q§" portal¦Allow a few business days for transcript to appear in portal¦IF RECEIVING FINANCIAL AID: must arrive by mid-August or federal aid will NOT disburse to student account¦IF NOT ON FINANCIAL AID: must arrive before first day of classes (Aug 24, 2026)¦If school releases grades late summer, request transcript be sent as soon as available‖Complete final transcript is required for federal financial aid to be disbursed. Federal aid will not appear on account until CMU receives this document. May also block fall registration. Source: CMU Admission FAQ.‖admission@andrew.cmu.edu
+t96‖aug1‖Safer Scotties: Anti-Hazing Module‖2026-08-15‖Aug 15 (third Safer Scotties module)‖https§S§canvas.cmu.edu/‖Available July 1 via Canvas¦Log into Canvas dashboard¦Find "Safer Scotties: Anti-Hazing" module¦Complete asynchronously (similar 60-90 min as other modules)¦Covers hazing prevention, recognition, and reporting¦Required for ALL incoming first-years (not just Greek Life)¦This is the THIRD Safer Scotties module — separate from Substance Use and Healthy Relationships‖Non-compliance with required new-student courses; possible Dean of Students follow-up.‖healthpromotion@andrew.cmu.edu
+t97‖apr‖Complete Security 101 Training: Foundational Awareness‖2026-05-15‖ASAP after Andrew ID activation‖https§S§www.cmu.edu/iso/‖Required IT security awareness training for all new CMU community members¦Available after Andrew ID activation¦Access via CMU Information Security Office (ISO) portal or Canvas¦Covers phishing, password security, data protection, incident reporting¦Takes approximately 30-45 minutes¦Watch for invitation email from CMU IT or ISO‖Required compliance item; failure to complete may block access to certain systems.‖iso-ir@andrew.cmu.edu / 412-268-2044
+t98‖jul‖Manage Student Identity in SIO‖2026-07-01‖July 1‖https§S§s3.andrew.cmu.edu/sio/‖SIO → My Info → Personal Information¦Verify legal name, preferred name, pronouns, gender identity¦Update emergency contacts (parent phone numbers)¦Confirm permanent home address (Fremont CA)¦Set up Cirrus Identity if not already done¦Review FERPA and privacy settings‖Outdated info means missed communications and emergency contact failures.‖thehub@andrew.cmu.edu / 412-268-8186
+t99‖aug1‖Login to TartanConnect‖2026-08-14‖Aug 14‖https§S§tartanconnect.cmu.edu‖TartanConnect is CMU central platform for clubs, orgs, events¦Sign in with Andrew ID¦Browse 400+ student organizations¦Save organizations of interest for fall recruitment¦Look for Design student orgs, CFA orgs, professional design societies¦Sign up for events and activity calendar¦Used throughout the year for involvement opportunities‖‖sit@andrew.cmu.edu
+t100‖aug1‖Submit Admitted Student Questionnaire‖2026-08-15‖Aug 15 (available July 1)‖‖Available July 1, 2026¦Watch Andrew email for survey link¦Provides feedback to CMU Admissions about decision process¦Helps shape future first-year programming¦Takes 10-15 minutes to complete‖Optional but encouraged; missing it doesnt have direct consequences but its useful feedback to CMU.‖admission@andrew.cmu.edu
+t101‖aug1‖Add Plaid Cash to ID Card (Initial Load)‖2026-08-15‖Aug 15‖https§S§www.cmu.edu/idplus/plaidcash/deposits.html‖Plaid Cash is CMUs declining-balance account for ID Card¦Deposit via SIO Finances using Visa/Mastercard¦Or deposit in person at HUB (Warner Hall)¦Use for vending, printing, laundry, dining, approved off-campus vendors¦Recommended initial load: $50-100¦Rolls over semester to semester¦Different from DineXtra (which expires end of spring)‖‖idplus@andrew.cmu.edu / 412-268-8186
+t102‖aug1‖Order Course Materials and Textbooks‖2026-08-31‖Aug 31‖https§S§www.cmu.edu/bookstore/‖Once enrolled in courses (via SIO), get textbook list¦Check University Store: https§S§cmubookstore.com¦Compare prices with Amazon, Chegg, third-party rentals¦For BDes courses: 51-101 Studio, 51-121 Drawing, 51-175 Place, 51-177 Histories, 76-101 IA, 88-120 RPC¦Some BDes courses may have specific assigned readings — wait for syllabus¦Buy used textbooks or rent to save money¦Reading-heavy courses: 76-101 and 88-120‖‖bookstore@andrew.cmu.edu
+t103‖aug1‖Enroll in Tuition Insurance Program (Optional)‖2026-08-24‖Aug 24 (optional)‖https§S§www.gradguard.com/tuition/cmu‖CMU partners with GradGuard for tuition insurance¦Protects tuition + housing if Sahil withdraws for medical/mental health reasons¦Annual cost ~$300-500 depending on coverage¦Without it: CMU refund schedule is limited (full refund only in first week, declining schedule after)¦Recommended if any health concerns or family financial sensitivity¦Apply at gradguard.com/tuition/cmu‖‖GradGuard 877-794-6603
+t104‖aug1‖Secure Renters Insurance‖2026-08-01‖Aug 1 (recommended before move-in)‖https§S§www.cmu.edu/housing/‖CMU does NOT insure personal property in dorm rooms¦Recommended coverage: laptop, electronics, clothing, design supplies¦Options:¦1. Check homeowners insurance (parents) — may cover dependent students¦2. Standalone renters insurance: GradGuard, NSSI, Lemonade, GEICO¦3. CMU partners with GradGuard Renters: gradguard.com/renters¦Typical cost: $10-20/month for $10,000-25,000 coverage¦Crucial for BDes: laptop ($2-3K) + design tools + Adobe license-locked files¦Pittsburgh has higher theft rates than suburban CA — coverage matters‖No coverage means full out-of-pocket replacement if items stolen, damaged, or lost in dorm.‖GradGuard or insurance provider
+t105‖aug1‖Order Art/Architecture and Design Kits from University Store‖2026-08-31‖Aug 31 (BDes-specific)‖https§S§www.cmubookstore.com‖CRITICAL FOR BDes — confirmed on official CMU First-Year Onboarding Checklist¦Order from University Store (CMU Bookstore)¦Standard Design Kit typically includes: cutting mat, X-Acto knife with blades, ruler set, drafting tools, marker kit, pencils, erasers¦Specific kit details typically sent by Jamie Kosnosky in late July¦Email Jamie if no info received by mid-August: jvance@andrew.cmu.edu¦Can also be picked up on campus Aug 15+ if ordered ahead¦Budget approximately $200-400 for full BDes Foundation Year kit¦DO NOT BUY supplies before getting official BDes kit list to avoid duplicates‖Without proper kit, cannot complete first-week studio assignments. BDes 51-101 starts immediately with hands-on work.‖Jamie Kosnosky jvance@andrew.cmu.edu / CMU Bookstore
+t106‖sep‖Search for University Employment (Optional)‖2026-09-30‖Sep 30 (if interested)‖https§S§www.cmu.edu/career/‖Look for on-campus jobs: residence halls, dining, libraries, labs, design studios¦Search via Handshake: cmu.joinhandshake.com¦School of Design often has lab assistant positions — ask Jamie Kosnosky¦Federal Work-Study eligibility (if applicable per financial aid)¦Typical pay: $12-18/hr¦Recommended 8-15 hrs/week max for first-years¦Apply early September — best jobs fill quickly¦Design Office positions can connect Sahil with upper-class students‖‖CPDC: 412-268-2064
+t107‖may‖Submit Special Dining Needs Form (If Applicable)‖2026-05-31‖May 31 (if food allergies/restrictions)‖https§S§www.cmu.edu/dining/‖Only if Sahil has food allergies, religious dietary restrictions, or medical dietary needs¦Halal, kosher, vegan, vegetarian, gluten-free, nut allergies¦Form available via CMU Dining Services¦Connects student with Registered Dietitian for menu planning¦Dining halls accommodate most needs but advanced notice is essential¦Skip if no special dietary needs‖‖dining@andrew.cmu.edu / 412-268-3782
+t108‖jul‖Submit Dietary Needs for First-Year Orientation Meals‖2026-07-19‖Jul 19 (if allergies)‖https§S§www.cmu.edu/first-year-orientation/‖Only if Sahil has food allergies or dietary restrictions¦Different from regular dining plan needs (covers orientation event catering Aug 15-23)¦Form distributed via orientation registration emails¦Ensures catered orientation events have safe food options¦Skip if no special dietary needs‖‖orientation@andrew.cmu.edu / 412-268-2142
+t109‖jul‖Order Computer from University Store (Optional)‖2026-07-07‖Jul 7 (if buying through CMU)‖https§S§www.cmubookstore.com‖Optional — only if Sahil hasnt bought a laptop yet¦CMU offers educational pricing on Apple, Dell, Lenovo¦Confirm BDes requirements with Jamie Kosnosky FIRST¦BDes typically requires Apple MacBook Pro with Apple Silicon (M-series)¦Recommended specs verified by School of Design: minimum 16GB RAM, 512GB SSD¦Order by July 7 to ensure delivery before move-in¦Includes CMU Apple Care and software bundles¦Most students buy their own at Apple or Best Buy with education discount‖‖computing@andrew.cmu.edu
+t110‖apr‖Attend CMU Network Summer Sendoff Event (If Available)‖2026-07-31‖July (Bay Area events typically June-July)‖https§S§www.cmu.edu/alumni/events/sendoffs.html‖CMU Network hosts regional sendoff events for incoming students¦Bay Area sendoff typically in Palo Alto/San Francisco area¦Watch Andrew email for invitation from CMU Alumni Office¦Meet other Bay Area incoming first-years and current students¦Connect with local alumni network¦Optional but recommended for relationship-building before arrival‖‖alumni@andrew.cmu.edu
+`;
+
+/* Expand § placeholders back to real symbols. */
+function un(s){ return s.replace(/§S§/g,'://').replace(/§Q§/g,'?').replace(/§A§/g,'&').replace(/§E§/g,'='); }
+
+/* Parse RAW into the TASKS array. */
+const TASKS = RAW.trim().split('\n').filter(Boolean).map(line => {
+  const p = line.split('‖');
+  const t = { id:p[0], sec:p[1], title:un(p[2]), dl:p[3], dlL:un(p[4]||''), url:un(p[5]||''), cons:un(p[7]||''), c:p[8]||'' };
+  if (p[6]) t.steps = p[6].split('¦').map(un);
+  return t;
+});
+
+const KEY = 'cmu-bdes-tracker-2030-final';
+let state = {};
+let curSection = 'apr';
+let fState = 'all';
+let fSearch = '';
+let saveTimer;
+
+// Shared backend (Cloudflare Pages Function + KV). Falls back to this-browser-only
+// storage when the API isn't reachable (e.g. opening the file directly off disk).
+const API = '/api/progress';
+let apiOk = null; // null = unknown, true = shared sync working, false = local only
+
+async function load() {
+  try {
+    const r = await fetch(API, { cache: 'no-store' });
+    if (!r.ok) throw new Error('http ' + r.status);
+    const data = await r.json();
+    state = (data && typeof data === 'object') ? data : {};
+    apiOk = true;
+    sync('Synced — shared across all devices');
+  } catch (e) {
+    apiOk = false;
+    try { const raw = localStorage.getItem(KEY); if (raw) state = JSON.parse(raw); } catch (_) {}
+    sync('This browser only — shared sync unavailable');
+  }
+  render();
+}
+
+function save() {
+  sync('Saving…', 'save');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (_) {}
+    try {
+      const r = await fetch(API, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(state)
+      });
+      if (!r.ok) throw new Error('http ' + r.status);
+      apiOk = true;
+      sync('Synced — visible on all devices');
+    } catch (e) {
+      apiOk = false;
+      sync('Saved to this browser only', 'err');
+    }
+  }, 400);
+}
+
+// Keep open tabs roughly in sync: pull the shared state periodically and re-render
+// if it changed (and we're not mid-save).
+setInterval(async () => {
+  if (apiOk === false || saveTimer) return;
+  try {
+    const r = await fetch(API, { cache: 'no-store' });
+    if (!r.ok) return;
+    const data = await r.json();
+    if (data && typeof data === 'object' && JSON.stringify(data) !== JSON.stringify(state)) {
+      state = data;
+      render();
+    }
+  } catch (_) {}
+}, 20000);
+
+function sync(msg, cls) {
+  const el = document.getElementById('sync');
+  el.textContent = msg;
+  el.className = 'sync' + (cls ? ' ' + cls : '');
+}
+
+function getS(id) { return state[id] || 'notstarted'; }
+function setS(id, s) {
+  if (s === 'notstarted') delete state[id];
+  else state[id] = s;
+  save();
+  render();
+}
+function cycle(id) {
+  const c = getS(id);
+  setS(id, c === 'notstarted' ? 'reviewed' : c === 'reviewed' ? 'done' : 'notstarted');
+}
+
+function daysTo(d) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  return Math.ceil((new Date(d) - today) / 86400000);
+}
+
+function urgency(d) {
+  const n = daysTo(d);
+  if (n < 0) return '';
+  if (n <= 7) return 'u-red';
+  if (n <= 30) return 'u-org';
+  if (n <= 60) return 'u-yel';
+  return '';
+}
+
+function matchesSearch(t) {
+  if (!fSearch) return true;
+  const q = fSearch.toLowerCase();
+  if (t.title.toLowerCase().includes(q)) return true;
+  if (t.dlL && t.dlL.toLowerCase().includes(q)) return true;
+  if (t.url && t.url.toLowerCase().includes(q)) return true;
+  if (t.cons && t.cons.toLowerCase().includes(q)) return true;
+  if (t.c && t.c.toLowerCase().includes(q)) return true;
+  if (t.steps && t.steps.some(s => s.toLowerCase().includes(q))) return true;
+  return false;
+}
+
+function matches(t) {
+  if (fState !== 'all' && getS(t.id) !== fState) return false;
+  if (!matchesSearch(t)) return false;
+  return true;
+}
+
+function render() {
+  const total = TASKS.length;
+  const rev = TASKS.filter(t => { const s = getS(t.id); return s === 'reviewed' || s === 'done'; }).length;
+  const dn = TASKS.filter(t => getS(t.id) === 'done').length;
+  document.getElementById('rc').textContent = rev + ' / ' + total;
+  document.getElementById('dc').textContent = dn + ' / ' + total;
+  document.getElementById('rb').style.width = (rev/total*100) + '%';
+  document.getElementById('db').style.width = (dn/total*100) + '%';
+
+  const urgent = TASKS.filter(t => { const n = daysTo(t.dl); return n >= 0 && n <= 7 && getS(t.id) !== 'done'; }).sort((a,b) => daysTo(a.dl) - daysTo(b.dl));
+  const ub = document.getElementById('urgent');
+  const ul = document.getElementById('urgent-list');
+  if (urgent.length === 0) ub.classList.add('empty');
+  else {
+    ub.classList.remove('empty');
+    ul.innerHTML = urgent.slice(0,5).map(t => {
+      const n = daysTo(t.dl);
+      const lbl = n === 0 ? 'TODAY' : n === 1 ? 'TOMORROW' : n + ' days';
+      return '<div class="uitem"><b>' + lbl + ':</b>' + t.title + '</div>';
+    }).join('');
+  }
+
+  const tabs = document.getElementById('tabs');
+  const searchStatus = document.getElementById('search-status');
+  const clearBtn = document.getElementById('search-clear');
+  if (fSearch) {
+    const totalMatches = TASKS.filter(matches).length;
+    const sectionsWithHits = SECTIONS.filter(s => TASKS.some(t => t.sec === s.id && matches(t))).length;
+    searchStatus.style.display = 'block';
+    searchStatus.textContent = 'Found ' + totalMatches + ' task' + (totalMatches !== 1 ? 's' : '') + ' matching "' + fSearch + '" across ' + sectionsWithHits + ' section' + (sectionsWithHits !== 1 ? 's' : '');
+    clearBtn.style.display = 'flex';
+  } else {
+    searchStatus.style.display = 'none';
+    clearBtn.style.display = 'none';
+  }
+
+  tabs.innerHTML = SECTIONS.map(s => {
+    const n = TASKS.filter(t => t.sec === s.id && matches(t)).length;
+    return '<button class="tab' + (s.id === curSection ? ' on' : '') + '" data-s="' + s.id + '">' + s.label + ' <span class="tcnt">' + n + '</span></button>';
+  }).join('');
+  tabs.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { curSection = b.dataset.s; render(); }));
+
+  const c = document.getElementById('sections');
+  // When searching, show ALL sections with matches (not just current tab)
+  // When not searching, show only the current tab
+  c.innerHTML = SECTIONS.map(s => {
+    const list = TASKS.filter(t => t.sec === s.id && matches(t));
+    const shouldShow = fSearch ? list.length > 0 : s.id === curSection;
+    return '<div class="sec' + (shouldShow ? ' on' : '') + '">'
+      + '<div class="shdr"><h2>' + s.label + '</h2><p>' + s.desc + ' · ' + list.length + ' task' + (list.length !== 1 ? 's' : '') + '</p></div>'
+      + (list.length === 0 ? '<div class="empty">No tasks match the current filter</div>' : list.map(renderTask).join(''))
+      + '</div>';
+  }).join('');
+
+  c.querySelectorAll('.tog').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); cycle(b.dataset.id); }));
+  c.querySelectorAll('.thdr').forEach(h => h.addEventListener('click', e => { if (e.target.closest('.tog')) return; h.closest('.task').classList.toggle('open'); }));
+  c.querySelectorAll('.sbtn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); setS(b.dataset.id, b.dataset.s); }));
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function highlight(s) {
+  const escaped = escapeHtml(s);
+  if (!fSearch) return escaped;
+  const q = fSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(' + q + ')', 'gi');
+  return escaped.replace(re, '<mark>$1</mark>');
+}
+
+function renderTask(t) {
+  const s = getS(t.id);
+  const u = urgency(t.dl);
+  const n = daysTo(t.dl);
+  const urg = n >= 0 && n <= 7;
+  const icon = s === 'reviewed' ? '👁' : s === 'done' ? '✓' : '';
+  const togCls = s === 'reviewed' ? 's-rev' : s === 'done' ? 's-dn' : '';
+
+  let html = '<div class="task ' + u + ' s-' + s + '">'
+    + '<div class="thdr">'
+    + '<button class="tog ' + togCls + '" data-id="' + t.id + '" title="Click to cycle: Not started → Reviewed → Done">' + icon + '</button>'
+    + '<div class="tbod">'
+    + '<div class="ttl">' + highlight(t.title) + '</div>'
+    + '<div class="tmeta">'
+    + '<span class="bdg dl' + (urg ? ' urg' : '') + '">' + escapeHtml(t.dlL || t.dl) + '</span>'
+    + '</div></div>'
+    + '<div class="caret">›</div>'
+    + '</div>'
+    + '<div class="det">';
+
+  if (t.url) html += '<div class="dsec"><div class="dlbl">Link</div><div class="dcnt"><a href="' + escapeHtml(t.url) + '" target="_blank" rel="noopener">' + highlight(t.url) + '</a></div></div>';
+  if (t.steps) html += '<div class="dsec"><div class="dlbl">Steps</div><div class="dcnt"><ol>' + t.steps.map(x => '<li>' + highlight(x) + '</li>').join('') + '</ol></div></div>';
+  if (t.cons) html += '<div class="dsec"><div class="dlbl">If Missed</div><div class="dcnt">' + highlight(t.cons) + '</div></div>';
+  if (t.c) html += '<div class="dsec"><div class="dlbl">Contact</div><div class="dcnt">' + highlight(t.c) + '</div></div>';
+
+  html += '<div class="sctrl">'
+    + '<button class="sbtn' + (s === 'notstarted' ? ' on' : '') + '" data-id="' + t.id + '" data-s="notstarted">⬜ Not Started</button>'
+    + '<button class="sbtn' + (s === 'reviewed' ? ' on-rev' : '') + '" data-id="' + t.id + '" data-s="reviewed">👁 Reviewed</button>'
+    + '<button class="sbtn' + (s === 'done' ? ' on-dn' : '') + '" data-id="' + t.id + '" data-s="done">✅ Done</button>'
+    + '</div></div></div>';
+
+  return html;
+}
+
+document.querySelectorAll('.fbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.fbtn[data-stf]').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  fState = b.dataset.stf;
+  render();
+}));
+
+// Search input handler with debounce
+let searchTimer;
+document.getElementById('search').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    fSearch = e.target.value.trim();
+    render();
+  }, 150);
+});
+
+// Clear search button
+document.getElementById('search-clear').addEventListener('click', () => {
+  document.getElementById('search').value = '';
+  fSearch = '';
+  render();
+  document.getElementById('search').focus();
+});
+
+// Escape key to clear search
+document.getElementById('search').addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('search').value = '';
+    fSearch = '';
+    render();
+  }
+});
+
+load();
+</script>
+</body>
+</html>

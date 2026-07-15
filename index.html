@@ -91,16 +91,6 @@ mark { background: #fff5b0; color: inherit; padding: 0 2px; border-radius: 2px; 
 .trips-table { border-collapse: collapse; font-size: 12px; min-width: 100%; }
 .trips-table th { text-align: left; padding: 8px 10px; border-bottom: 2px solid #e8e8ed; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #6e6e73; white-space: nowrap; }
 .trips-table td { padding: 8px 10px; border-bottom: 1px solid #f0f0f3; white-space: nowrap; }
-@media (max-width: 600px) {
-  .trips-wrap { overflow-x: visible; box-shadow: none; background: transparent; }
-  .trips-table { min-width: 0; width: 100%; font-size: 13px; }
-  .trips-table thead { display: none; }
-  .trips-table tr { display: block; background: #fff; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); margin-bottom: 10px; padding: 4px 2px; }
-  .trips-table td { display: flex; justify-content: space-between; gap: 12px; white-space: normal; padding: 7px 12px; border-bottom: 1px solid #f5f5f7; text-align: right; }
-  .trips-table td:last-child { border-bottom: 0; }
-  .trips-table td::before { content: attr(data-label); font-weight: 600; color: #6e6e73; text-align: left; white-space: nowrap; }
-  .trips-table td:first-child { background: #fafafa; border-radius: 6px; font-weight: 600; }
-}
 </style>
 </head>
 <body>
@@ -431,14 +421,12 @@ function matches(t) {
 }
 
 function renderTrips() {
-  const cols = ['#','Type','Traveler / Reserved For','Provider','Confirmation #','Ticket #','Itinerary #','Route / Location','Dates','Fare / Details','Loyalty #','Refundable?','Total'];
+  const cols = ['#','Type','Traveler / Reserved For','Provider','Confirmation #','Route / Location','Dates','Total'];
   const th = cols.map(c => '<th>' + escapeHtml(c) + '</th>').join('');
-  const cell = (label, v) => '<td data-label="' + escapeHtml(label) + '">' + escapeHtml(v == null ? '' : String(v)) + '</td>';
+  const cell = v => '<td>' + escapeHtml(v == null ? '' : String(v)) + '</td>';
   const rows = TRIPS.map(t => '<tr>'
-    + cell('#', t.n) + cell('Type', t.type) + cell('Traveler', t.traveler) + cell('Provider', t.provider)
-    + cell('Confirmation #', t.conf) + cell('Ticket #', t.ticket) + cell('Itinerary #', t.itin)
-    + cell('Route / Location', t.route) + cell('Dates', t.dates) + cell('Fare / Details', t.fare)
-    + cell('Loyalty #', t.loyalty) + cell('Refundable?', t.refund) + cell('Total', t.total)
+    + cell(t.n) + cell(t.type) + cell(t.traveler) + cell(t.provider)
+    + cell(t.conf) + cell(t.route) + cell(t.dates) + cell(t.total)
     + '</tr>').join('');
   return '<div class="trips-wrap"><table class="trips-table"><thead><tr>' + th + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
 }

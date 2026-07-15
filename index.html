@@ -155,7 +155,21 @@ const SECTIONS = [
   {id:'aug1',label:'Early-Mid August',desc:'Final Pre-Arrival'},
   {id:'movein',label:'Move-In',desc:'Aug 15-16 + Family Orientation'},
   {id:'orient',label:'Orientation Week',desc:'Aug 17-23'},
-  {id:'sep',label:'September',desc:'Settling In'}
+  {id:'sep',label:'September',desc:'Settling In'},
+  {id:'trips',label:'✈️ Trips',desc:'Travel & Reservations'}
+];
+
+const TRIPS = [
+  {n:1,type:'Flight',source:'sahilmmehta@gmail.com',traveler:'Sahil Mehta',provider:'Southwest',conf:'C7ZFJY',itin:'—',ticket:'5262156467094',route:'OAK → MDW → PIT',dates:'Aug 13 – Aug 14',fare:'Choice',loyalty:'20934081781',refund:'Change w/ upgrade',total:'$246.20'},
+  {n:2,type:'Flight',source:'manishamodi@gmail.com',traveler:'Manisha Mehta',provider:'Southwest',conf:'C7OAJL',itin:'—',ticket:'5262156462939',route:'OAK → PIT → OAK',dates:'Aug 13 – Aug 17',fare:'Basic',loyalty:'20349552285',refund:'Change w/ upgrade',total:'$402.40'},
+  {n:3,type:'Parking',source:'Milan inbox',traveler:'Milan Mehta (Tesla Model S, BRV RONI)',provider:'SpotHero — Garden Inn Oakland Airport',conf:'122374774',itin:'—',ticket:'—',route:'Park & Fly, uncovered self park — enter at 10 Hegenberger Rd',dates:'Aug 13 9:00 PM – Aug 18 9:00 PM',fare:'Shuttle to/from OAK terminal',loyalty:'—',refund:'YES — full refund until start',total:'$52.70'},
+  {n:4,type:'Hotel',source:'Milan inbox',traveler:'Manisha Mehta (3 adults)',provider:'SpringHill Suites by Marriott, Southside Works',conf:'73438898553873',itin:'73438898553873',ticket:'—',route:'2950 S Water St, Pittsburgh PA 15203',dates:'Aug 14 – Aug 17 (3 nights)',fare:'One King Studio Suite + trundle',loyalty:'One Key',refund:'NO — non-refundable',total:'$693.58'},
+  {n:5,type:'Car',source:'Milan inbox',traveler:'Milan Mehta',provider:'Thrifty Car Rental',conf:'L5760214302',itin:'73438910461697',ticket:'—',route:'PIT — 671 Airport Blvd Suite G1',dates:'Aug 14 11:00 AM – Aug 17 6:00 PM',fare:'Compact — Nissan Versa or similar',loyalty:'—',refund:'Yes — until 6h before pickup',total:'$288.92'},
+  {n:6,type:'Flight',source:'mehtamilan@gmail.com',traveler:'Sahil Mehta',provider:'United (via Expedia)',conf:'N8PJ5H',itin:'73483877124423',ticket:'0162115813724',route:'PIT → SFO → PIT',dates:'Sep 10 – Sep 14',fare:'Economy / Coach (Basic)',loyalty:'NC065745',refund:'NO — no changes',total:'$382.65'},
+  {n:7,type:'Flight',source:'mehtamilan@gmail.com',traveler:'Manisha Mehta',provider:'Southwest',conf:'APYFUA',itin:'—',ticket:'5262174712384',route:'SFO → PIT → SFO',dates:'Oct 1 – Oct 4',fare:'Basic',loyalty:'Not applied',refund:'Change w/ upgrade',total:'$425.40'},
+  {n:8,type:'Flight',source:'mehtamilan@gmail.com',traveler:'Milan Mehta',provider:'Southwest',conf:'AQ72CL',itin:'—',ticket:'5262174712482',route:'SNA → PIT → SNA',dates:'Oct 2 – Oct 4',fare:'Basic',loyalty:'20019100080',refund:'Change w/ upgrade',total:'$476.40'},
+  {n:9,type:'Flight',source:'mehtamilan@gmail.com',traveler:'Sahil Mehta',provider:'United (via Expedia)',conf:'NRBEH4',itin:'73483923943253',ticket:'0162115817019',route:'PIT → ORD → SFO',dates:'Oct 10',fare:'Economy / Coach',loyalty:'NC065745',refund:'NO — no changes',total:'$184.20'},
+  {n:10,type:'Flight',source:'mehtamilan@gmail.com',traveler:'Sahil Mehta',provider:'Southwest',conf:'APJ9IY',itin:'—',ticket:'5262174712213',route:'SJC → SAN → PIT',dates:'Oct 18',fare:'Basic',loyalty:'Not applied',refund:'Change w/ upgrade',total:'$255.20'}
 ];
 
 /* Task data. The § placeholders below are expanded by un() at load time:
@@ -402,6 +416,15 @@ function matches(t) {
   return true;
 }
 
+function renderTrips() {
+  const cols = ['#','Type','Traveler / Reserved For','Provider','Confirmation #','Ticket #','Itinerary #','Route / Location','Dates','Fare / Details','Loyalty #','Refundable?','Total'];
+  const th = cols.map(c => '<th style="text-align:left;padding:8px 10px;border-bottom:2px solid #e8e8ed;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:#6e6e73;white-space:nowrap;">' + c + '</th>').join('');
+  const cell = v => '<td style="padding:8px 10px;border-bottom:1px solid #f0f0f3;white-space:nowrap;">' + escapeHtml(v == null ? '' : String(v)) + '</td>';
+  const rows = TRIPS.map(t => '<tr>' + [t.n,t.type,t.traveler,t.provider,t.conf,t.ticket,t.itin,t.route,t.dates,t.fare,t.loyalty,t.refund,t.total].map(cell).join('') + '</tr>').join('');
+  return '<div style="background:#fff;border-radius:10px;box-shadow:0 1px 2px rgba(0,0,0,0.04);overflow-x:auto;-webkit-overflow-scrolling:touch;">'
+    + '<table style="border-collapse:collapse;font-size:12px;min-width:100%;"><thead><tr>' + th + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
 function render() {
   const total = TASKS.length;
   const rev = TASKS.filter(t => { const s = getS(t.id); return s === 'reviewed' || s === 'done'; }).length;
@@ -439,7 +462,7 @@ function render() {
   }
 
   tabs.innerHTML = SECTIONS.map(s => {
-    const n = TASKS.filter(t => t.sec === s.id && matches(t)).length;
+    const n = s.id === 'trips' ? TRIPS.length : TASKS.filter(t => t.sec === s.id && matches(t)).length;
     return '<button class="tab' + (s.id === curSection ? ' on' : '') + '" data-s="' + s.id + '">' + s.label + ' <span class="tcnt">' + n + '</span></button>';
   }).join('');
   tabs.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { curSection = b.dataset.s; render(); }));
@@ -448,6 +471,13 @@ function render() {
   // When searching, show ALL sections with matches (not just current tab)
   // When not searching, show only the current tab
   c.innerHTML = SECTIONS.map(s => {
+    if (s.id === 'trips') {
+      const showTrips = fSearch ? false : s.id === curSection;
+      return '<div class="sec' + (showTrips ? ' on' : '') + '">'
+        + '<div class="shdr"><h2>' + s.label + '</h2><p>' + s.desc + ' · ' + TRIPS.length + ' reservations · Grand total $3,407.65</p></div>'
+        + renderTrips()
+        + '</div>';
+    }
     const list = TASKS.filter(t => t.sec === s.id && matches(t));
     const shouldShow = fSearch ? list.length > 0 : s.id === curSection;
     return '<div class="sec' + (shouldShow ? ' on' : '') + '">'
